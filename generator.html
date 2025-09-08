@@ -1,0 +1,1922 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Générateur de CV </title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --primary-blue: #4a69bd;
+            --secondary-blue: #5a7bd8;
+            --accent-gold: #ffd700;
+            --text-dark: #2c3e50;
+            --text-light: #7f8c8d;
+            --bg-light: #f8f9fa;
+            --white: #ffffff;
+            --border-color: #e9ecef;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px 0;
+            min-height: 100vh;
+        }
+
+        .main-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Section */
+        .header-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #fff, #f8f9fa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header-subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.3rem;
+            margin-bottom: 30px;
+        }
+
+        /* Control Panel */
+        .control-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .panel-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Export Controls */
+        .export-controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .export-btn {
+            background: linear-gradient(45deg, var(--primary-blue), var(--secondary-blue));
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(74, 105, 189, 0.3);
+            cursor: pointer;
+        }
+
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(74, 105, 189, 0.4);
+            color: white;
+        }
+
+        .export-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Template Selection */
+        .template-selector {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .template-option {
+            width: 80px;
+            height: 100px;
+            border: 3px solid transparent;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--white);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .template-option.active {
+            border-color: var(--primary-blue);
+            transform: scale(1.05);
+        }
+
+        .template-option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 30%;
+            background: var(--primary-blue);
+        }
+
+        .template-option.classic::before { background: #4a69bd; }
+        .template-option.modern::before { background: #27ae60; }
+        .template-option.creative::before { background: #8e44ad; }
+        .template-option.professional::before { background: #e74c3c; }
+
+        /* Form Sections */
+        .form-section {
+            background: var(--white);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid var(--primary-blue);
+            transition: all 0.3s ease;
+        }
+
+        .form-section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .section-title {
+            color: var(--text-dark);
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 0;
+        }
+
+        .section-title i {
+            color: var(--primary-blue);
+            font-size: 1.3rem;
+        }
+
+        /* Photo Upload */
+        .photo-upload {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            border: 3px dashed var(--border-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            margin: 0 auto 20px;
+        }
+
+        .photo-upload:hover {
+            border-color: var(--primary-blue);
+            background: rgba(74, 105, 189, 0.05);
+        }
+
+        .photo-preview {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .photo-placeholder {
+            text-align: center;
+            color: var(--text-light);
+        }
+
+        /* Form Controls */
+        .form-control, .form-select {
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 0.2rem rgba(74, 105, 189, 0.15);
+            transform: scale(1.02);
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        /* Dynamic Items */
+        .dynamic-item {
+            background: rgba(74, 105, 189, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .dynamic-item:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #dc3545;
+            border: none;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .remove-btn:hover {
+            background: #c82333;
+            transform: scale(1.1);
+        }
+
+        /* Add Button */
+        .add-btn {
+            background: linear-gradient(45deg, var(--primary-blue), var(--secondary-blue));
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .add-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(74, 105, 189, 0.3);
+        }
+
+        /* Skills */
+        .skill-item {
+            background: var(--primary-blue);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin: 5px;
+            display: inline-block;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .skill-item:hover {
+            background: var(--text-dark);
+            transform: scale(1.05);
+        }
+
+        .skill-remove {
+            margin-left: 8px;
+            cursor: pointer;
+            opacity: 0.8;
+        }
+
+        .skill-remove:hover {
+            opacity: 1;
+        }
+
+        /* CV Preview */
+        .cv-container {
+            background: var(--white);
+            border-radius: 0;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            position: sticky;
+            top: 20px;
+            max-height: 90vh;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .cv-preview {
+            width: 100%;
+            height: 90vh;
+            overflow-y: auto;
+            padding: 0;
+        }
+
+        /* CV Styles */
+        .cv-page {
+            width: 100%;
+            min-height: 100%;
+            background: var(--white);
+            position: relative;
+        }
+
+        /* Classic Template */
+        .cv-classic {
+            padding: 40px;
+        }
+
+        .cv-classic .cv-header {
+            text-align: center;
+            border-bottom: 3px solid var(--primary-blue);
+            padding-bottom: 30px;
+            margin-bottom: 30px;
+        }
+
+        .cv-classic .cv-photo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 20px;
+            border: 4px solid var(--primary-blue);
+        }
+
+        .cv-classic .cv-name {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 10px;
+        }
+
+        .cv-classic .cv-title {
+            font-size: 1.3rem;
+            color: var(--primary-blue);
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+
+        .cv-classic .cv-contact {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .cv-classic .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        .cv-classic .contact-item i {
+            color: var(--primary-blue);
+            width: 16px;
+        }
+
+        .cv-classic .cv-section {
+            margin-bottom: 30px;
+        }
+
+        .cv-classic .section-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            border-left: 4px solid var(--primary-blue);
+            padding-left: 15px;
+            margin-bottom: 20px;
+        }
+
+        .cv-classic .profile-text {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--text-dark);
+            text-align: justify;
+        }
+
+        .cv-classic .experience-item,
+        .cv-classic .education-item {
+            background: rgba(74, 105, 189, 0.05);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 3px solid var(--primary-blue);
+        }
+
+        .cv-classic .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .cv-classic .item-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .cv-classic .item-company {
+            font-size: 1rem;
+            color: var(--primary-blue);
+            font-weight: 500;
+        }
+
+        .cv-classic .item-date {
+            background: var(--primary-blue);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .cv-classic .item-description {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: var(--text-dark);
+            margin-top: 10px;
+        }
+
+        /* Modern Template */
+        .cv-modern {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .cv-modern .sidebar {
+            width: 35%;
+            background: var(--primary-blue);
+            padding: 40px 30px;
+            color: white;
+        }
+
+        .cv-modern .main-content {
+            width: 65%;
+            padding: 40px;
+            background: var(--white);
+        }
+
+        .cv-modern .cv-photo {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 30px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .cv-modern .sidebar .cv-name {
+            font-size: 2rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .cv-modern .sidebar .cv-title {
+            font-size: 1.1rem;
+            text-align: center;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+
+        .cv-modern .sidebar .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .cv-modern .sidebar .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+        }
+
+        .cv-modern .sidebar .contact-item i {
+            width: 16px;
+            opacity: 0.8;
+        }
+
+        .cv-modern .main-content .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-title { font-size: 2.5rem; }
+            .cv-container { position: relative; }
+            .form-section { padding: 20px; }
+            .export-controls { justify-content: center; }
+            .cv-modern { flex-direction: column; }
+            .cv-modern .sidebar { width: 100%; }
+            .cv-modern .main-content { width: 100%; }
+        }
+
+        /* Print Styles */
+        @media print {
+            body { background: white !important; }
+            .form-section, .control-panel, .header-section { display: none !important; }
+            .cv-container { box-shadow: none !important; position: static !important; }
+            .cv-preview { height: auto !important; overflow: visible !important; }
+        }
+
+        /* Scrollbar */
+        .cv-preview::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .cv-preview::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .cv-preview::-webkit-scrollbar-thumb {
+            background: var(--primary-blue);
+            border-radius: 4px;
+        }
+
+        .cv-preview::-webkit-scrollbar-thumb:hover {
+            background: var(--text-dark);
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Header -->
+        <div class="header-section animate__animated animate__fadeInDown">
+            <h1 class="header-title">
+                <i class="fas fa-file-alt"></i>
+                Générateur de CV Professionnel <br>
+                Gis Community system
+            </h1>
+            <p class="header-subtitle">Créez votre CV parfait avec notre interface moderne et intuitive</p>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="control-panel animate__animated animate__fadeInUp">
+            <div class="panel-title">
+                <i class="fas fa-cog"></i>
+                Contrôles et Options
+            </div>
+            
+            <!-- Template Selection -->
+            <div class="mb-4">
+                <h6 class="mb-3">Choisir un modèle :</h6>
+                <div class="template-selector">
+                    <div class="template-option classic active" data-template="classic" title="Classique">
+                        <div class="d-flex align-items-end justify-content-center h-100 pb-2">
+                            <small>Classique</small>
+                        </div>
+                    </div>
+                    <div class="template-option modern" data-template="modern" title="Moderne">
+                        <div class="d-flex align-items-end justify-content-center h-100 pb-2">
+                            <small>Moderne</small>
+                        </div>
+                    </div>
+                    <div class="template-option creative" data-template="creative" title="Créatif">
+                        <div class="d-flex align-items-end justify-content-center h-100 pb-2">
+                            <small>Créatif</small>
+                        </div>
+                    </div>
+                    <div class="template-option professional" data-template="professional" title="Professionnel">
+                        <div class="d-flex align-items-end justify-content-center h-100 pb-2">
+                            <small>Pro</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Export Controls -->
+            <div>
+                <h6 class="mb-3">Exporter votre CV :</h6>
+                <div class="export-controls">
+                    <button class="export-btn" onclick="exportToPDF()">
+                        <i class="fas fa-file-pdf me-2"></i>
+                        Télécharger PDF
+                    </button>
+                    <button class="export-btn" onclick="exportToWord()">
+                        <i class="fas fa-file-word me-2"></i>
+                        Télécharger Word
+                    </button>
+                    <button class="export-btn" onclick="printCV()">
+                        <i class="fas fa-print me-2"></i>
+                        Imprimer
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Form Column -->
+            <div class="col-lg-6">
+                <!-- Photo et Informations personnelles -->
+                <div class="form-section animate__animated animate__fadeInLeft">
+                    <div class="section-header">
+                        <h3 class="section-title">
+                            <i class="fas fa-user"></i>
+                            Informations personnelles
+                        </h3>
+                    </div>
+                    
+                    <!-- Photo Upload -->
+                    <div class="photo-upload" onclick="document.getElementById('photoInput').click()">
+                        <input type="file" id="photoInput" accept="image/*" style="display: none;">
+                        <div class="photo-placeholder" id="photoPlaceholder">
+                            <i class="fas fa-camera fa-2x mb-2"></i>
+                            <div>Ajouter une photo</div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Prénom *</label>
+                            <input type="text" class="form-control" id="firstName" placeholder="Taliane">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Nom *</label>
+                            <input type="text" class="form-control" id="lastName" placeholder="Louboundzi">
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Titre professionnel *</label>
+                            <input type="text" class="form-control" id="jobTitle" placeholder="Développeur Full Stack">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Email *</label>
+                            <input type="email" class="form-control" id="email" placeholder="talianelouboundzi@gmail.com">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Téléphone</label>
+                            <input type="tel" class="form-control" id="phone" placeholder="+237 6XX XXX XXX">
+                        </div>
+                        <div class="col-md-8 mb-3">
+                            <label class="form-label">Adresse</label>
+                            <input type="text" class="form-control" id="address" placeholder="Votre adresse complète">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Code postal</label>
+                            <input type="text" class="form-control" id="zipCode" placeholder="00000">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Ville</label>
+                            <input type="text" class="form-control" id="city" placeholder="Douala">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Pays</label>
+                            <input type="text" class="form-control" id="country" placeholder="Cameroun">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profil professionnel -->
+                <div class="form-section animate__animated animate__fadeInLeft">
+                    <div class="section-header">
+                        <h3 class="section-title">
+                            <i class="fas fa-id-card"></i>
+                            Profil professionnel
+                        </h3>
+                    </div>
+                    <textarea class="form-control" id="profile" rows="5" placeholder="Décrivez brièvement votre profil professionnel, vos objectifs de carrière et ce qui vous rend unique..."></textarea>
+                </div>
+
+                <!-- Expériences professionnelles -->
+                <div class="form-section animate__animated animate__fadeInLeft">
+                    <div class="section-header">
+                        <h3 class="section-title">
+                            <i class="fas fa-briefcase"></i>
+                            Expériences professionnelles
+                        </h3>
+                        <button class="add-btn" onclick="addExperience()">
+                            <i class="fas fa-plus me-1"></i>
+                            Ajouter
+                        </button>
+                    </div>
+                    <div id="experiencesContainer"></div>
+                </div>
+
+                <!-- Formation -->
+                <div class="form-section animate__animated animate__fadeInLeft">
+                    <div class="section-header">
+                        <h3 class="section-title">
+                            <i class="fas fa-graduation-cap"></i>
+                            Formation
+                        </h3>
+                        <button class="add-btn" onclick="addEducation()">
+                            <i class="fas fa-plus me-1"></i>
+                            Ajouter
+                        </button>
+                    </div>
+                    <div id="educationContainer"></div>
+                </div>
+
+                <!-- Compétences -->
+                <div class="form-section animate__animated animate__fadeInLeft">
+                    <div class="section-header">
+                        <h3 class="section-title">
+                            <i class="fas fa-cogs"></i>
+                            Compétences
+                        </h3>
+                    </div>
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" id="skillInput" placeholder="Tapez une compétence et appuyez sur Entrée">
+                        <button class="btn add-btn" type="button" onclick="addSkill()">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    <div id="skillsContainer"></div>
+                </div>
+
+                <!-- Langues -->
+                <div class="form-section animate__animated animate__fadeInLeft">
+                    <div class="section-header">
+                        <h3 class="section-title">
+                            <i class="fas fa-language"></i>
+                            Langues
+                        </h3>
+                        <button class="add-btn" onclick="addLanguage()">
+                            <i class="fas fa-plus me-1"></i>
+                            Ajouter
+                        </button>
+                    </div>
+                    <div id="languagesContainer"></div>
+                </div>
+            </div>
+
+            <!-- CV Preview Column -->
+            <div class="col-lg-6">
+                <div class="cv-container animate__animated animate__fadeInRight">
+                    <div class="cv-preview" id="cvPreview">
+                        <div class="cv-page cv-classic" id="cvPage">
+                            <!-- Le contenu du CV sera généré dynamiquement ici -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Variables globales
+        let experienceCount = 0;
+        let educationCount = 0;
+        let languageCount = 0;
+        let currentTemplate = 'classic';
+        let photoDataUrl = null;
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            addExperience();
+            addEducation();
+            addLanguage();
+            updatePreview();
+        });
+
+        // Configuration des écouteurs d'événements
+        function setupEventListeners() {
+            // Champs de saisie
+            const fields = ['firstName', 'lastName', 'jobTitle', 'email', 'phone', 'address', 'zipCode', 'city', 'country', 'profile'];
+            fields.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('input', debounce(updatePreview, 300));
+                }
+            });
+
+            // Upload de photo
+            document.getElementById('photoInput').addEventListener('change', handlePhotoUpload);
+
+            // Sélection de template
+            document.querySelectorAll('.template-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    changeTemplate(this.dataset.template);
+                });
+            });
+
+            // Ajout de compétence avec Enter
+            document.getElementById('skillInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addSkill();
+                }
+            });
+        }
+
+        // Fonction debounce pour optimiser les performances
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Gestion de l'upload de photo
+        function handlePhotoUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        photoDataUrl = e.target.result;
+                        const placeholder = document.getElementById('photoPlaceholder');
+                        placeholder.innerHTML = `<img src="${photoDataUrl}" alt="Photo" class="photo-preview">`;
+                        updatePreview();
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    alert('Veuillez sélectionner un fichier image valide.');
+                }
+            }
+        }
+
+        // Changement de template
+        function changeTemplate(template) {
+            currentTemplate = template;
+            
+            // Mettre à jour l'interface
+            document.querySelectorAll('.template-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            document.querySelector(`[data-template="${template}"]`).classList.add('active');
+
+            // Mettre à jour le CV
+            updatePreview();
+
+            // Animation
+            const cvPage = document.getElementById('cvPage');
+            cvPage.classList.add('animate__animated', 'animate__fadeIn');
+            setTimeout(() => {
+                cvPage.classList.remove('animate__animated', 'animate__fadeIn');
+            }, 1000);
+        }
+
+        // Mise à jour du preview
+        function updatePreview() {
+            const cvPage = document.getElementById('cvPage');
+            cvPage.className = `cv-page cv-${currentTemplate}`;
+            
+            switch(currentTemplate) {
+                case 'classic':
+                    renderClassicTemplate();
+                    break;
+                case 'modern':
+                    renderModernTemplate();
+                    break;
+                case 'creative':
+                    renderCreativeTemplate();
+                    break;
+                case 'professional':
+                    renderProfessionalTemplate();
+                    break;
+            }
+        }
+
+        // Template Classique
+        function renderClassicTemplate() {
+            const data = collectFormData();
+            const cvPage = document.getElementById('cvPage');
+            
+            cvPage.innerHTML = `
+                <div class="cv-header">
+                    ${photoDataUrl ? `<img src="${photoDataUrl}" alt="Photo" class="cv-photo">` : ''}
+                    <h1 class="cv-name">${data.fullName || 'Votre Nom'}</h1>
+                    <h2 class="cv-title">${data.jobTitle || 'Titre professionnel'}</h2>
+                    <div class="cv-contact">
+                        ${data.email ? `<div class="contact-item"><i class="fas fa-envelope"></i> ${data.email}</div>` : ''}
+                        ${data.phone ? `<div class="contact-item"><i class="fas fa-phone"></i> ${data.phone}</div>` : ''}
+                        ${data.location ? `<div class="contact-item"><i class="fas fa-map-marker-alt"></i> ${data.location}</div>` : ''}
+                    </div>
+                </div>
+
+                ${data.profile ? `
+                    <div class="cv-section">
+                        <h3 class="section-title">Profil professionnel</h3>
+                        <p class="profile-text">${data.profile}</p>
+                    </div>
+                ` : ''}
+
+                ${data.experiences.length ? `
+                    <div class="cv-section">
+                        <h3 class="section-title">Expérience professionnelle</h3>
+                        ${data.experiences.map(exp => `
+                            <div class="experience-item">
+                                <div class="item-header">
+                                    <div>
+                                        <div class="item-title">${exp.position || 'Poste'}</div>
+                                        <div class="item-company">${exp.company || 'Entreprise'}</div>
+                                    </div>
+                                    <div class="item-date">${exp.startDate || 'Début'} - ${exp.endDate || 'Fin'}</div>
+                                </div>
+                                ${exp.description ? `<div class="item-description">${exp.description}</div>` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+
+                ${data.education.length ? `
+                    <div class="cv-section">
+                        <h3 class="section-title">Formation</h3>
+                        ${data.education.map(edu => `
+                            <div class="education-item">
+                                <div class="item-header">
+                                    <div>
+                                        <div class="item-title">${edu.degree || 'Diplôme'}</div>
+                                        <div class="item-company">${edu.school || 'École'}</div>
+                                    </div>
+                                    <div class="item-date">${edu.startYear || 'Début'} - ${edu.endYear || 'Fin'}</div>
+                                </div>
+                                ${edu.description ? `<div class="item-description">${edu.description}</div>` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+
+                ${data.skills.length ? `
+                    <div class="cv-section">
+                        <h3 class="section-title">Compétences</h3>
+                        <div>
+                            ${data.skills.map(skill => `<span class="skill-item">${skill}</span>`).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+
+                ${data.languages.length ? `
+                    <div class="cv-section">
+                        <h3 class="section-title">Langues</h3>
+                        ${data.languages.map(lang => `
+                            <div class="mb-2">
+                                <strong>${lang.language}</strong>${lang.level ? ` - <em>${lang.level}</em>` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+            `;
+        }
+
+        // Template Moderne
+        function renderModernTemplate() {
+            const data = collectFormData();
+            const cvPage = document.getElementById('cvPage');
+            
+            cvPage.innerHTML = `
+                <div class="sidebar">
+                    ${photoDataUrl ? `<img src="${photoDataUrl}" alt="Photo" class="cv-photo">` : ''}
+                    <h1 class="cv-name">${data.fullName || 'Votre Nom'}</h1>
+                    <h2 class="cv-title">${data.jobTitle || 'Titre professionnel'}</h2>
+                    
+                    <div class="cv-section">
+                        <h3 class="section-title">Contact</h3>
+                        ${data.email ? `<div class="contact-item"><i class="fas fa-envelope"></i> ${data.email}</div>` : ''}
+                        ${data.phone ? `<div class="contact-item"><i class="fas fa-phone"></i> ${data.phone}</div>` : ''}
+                        ${data.location ? `<div class="contact-item"><i class="fas fa-map-marker-alt"></i> ${data.location}</div>` : ''}
+                    </div>
+
+                    ${data.skills.length ? `
+                        <div class="cv-section">
+                            <h3 class="section-title">Compétences</h3>
+                            ${data.skills.map(skill => `<div class="mb-2">${skill}</div>`).join('')}
+                        </div>
+                    ` : ''}
+
+                    ${data.languages.length ? `
+                        <div class="cv-section">
+                            <h3 class="section-title">Langues</h3>
+                            ${data.languages.map(lang => `
+                                <div class="mb-2">
+                                    <strong>${lang.language}</strong><br>
+                                    ${lang.level ? `<small>${lang.level}</small>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+                
+                <div class="main-content">
+                    ${data.profile ? `
+                        <div class="cv-section">
+                            <h3 class="section-title">Profil professionnel</h3>
+                            <p>${data.profile}</p>
+                        </div>
+                    ` : ''}
+
+                    ${data.experiences.length ? `
+                        <div class="cv-section">
+                            <h3 class="section-title">Expérience professionnelle</h3>
+                            ${data.experiences.map(exp => `
+                                <div class="experience-item">
+                                    <div class="item-header">
+                                        <div>
+                                            <div class="item-title">${exp.position || 'Poste'}</div>
+                                            <div class="item-company">${exp.company || 'Entreprise'}</div>
+                                        </div>
+                                        <div class="item-date">${exp.startDate || 'Début'} - ${exp.endDate || 'Fin'}</div>
+                                    </div>
+                                    ${exp.description ? `<div class="item-description">${exp.description}</div>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+
+                    ${data.education.length ? `
+                        <div class="cv-section">
+                            <h3 class="section-title">Formation</h3>
+                            ${data.education.map(edu => `
+                                <div class="education-item">
+                                    <div class="item-header">
+                                        <div>
+                                            <div class="item-title">${edu.degree || 'Diplôme'}</div>
+                                            <div class="item-company">${edu.school || 'École'}</div>
+                                        </div>
+                                        <div class="item-date">${edu.startYear || 'Début'} - ${edu.endYear || 'Fin'}</div>
+                                    </div>
+                                    ${edu.description ? `<div class="item-description">${edu.description}</div>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        // Template Créatif (similaire au classique avec des couleurs différentes)
+        function renderCreativeTemplate() {
+            document.documentElement.style.setProperty('--primary-blue', '#8e44ad');
+            renderClassicTemplate();
+        }
+
+        // Template Professionnel (similaire au moderne avec des couleurs différentes)
+        function renderProfessionalTemplate() {
+            document.documentElement.style.setProperty('--primary-blue', '#e74c3c');
+            renderModernTemplate();
+        }
+
+        // Collecte des données du formulaire
+        function collectFormData() {
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            
+            return {
+                fullName: `${firstName} ${lastName}`.trim() || null,
+                jobTitle: document.getElementById('jobTitle').value.trim() || null,
+                email: document.getElementById('email').value.trim() || null,
+                phone: document.getElementById('phone').value.trim() || null,
+                address: document.getElementById('address').value.trim() || null,
+                city: document.getElementById('city').value.trim() || null,
+                zipCode: document.getElementById('zipCode').value.trim() || null,
+                country: document.getElementById('country').value.trim() || null,
+                location: [
+                    document.getElementById('address').value.trim(),
+                    document.getElementById('zipCode').value.trim(),
+                    document.getElementById('city').value.trim(),
+                    document.getElementById('country').value.trim()
+                ].filter(Boolean).join(', ') || null,
+                profile: document.getElementById('profile').value.trim() || null,
+                experiences: collectExperiences(),
+                education: collectEducation(),
+                skills: collectSkills(),
+                languages: collectLanguages()
+            };
+        }
+
+        // Collecte des expériences
+        function collectExperiences() {
+            const experiences = [];
+            document.querySelectorAll('.experience-input').forEach(input => {
+                const id = input.dataset.id;
+                const field = input.dataset.field;
+                
+                if (!experiences[id]) experiences[id] = {};
+                experiences[id][field] = input.value.trim();
+            });
+            
+            return experiences.filter(exp => exp && (exp.position || exp.company));
+        }
+
+        // Collecte des formations
+        function collectEducation() {
+            const education = [];
+            document.querySelectorAll('.education-input').forEach(input => {
+                const id = input.dataset.id;
+                const field = input.dataset.field;
+                
+                if (!education[id]) education[id] = {};
+                education[id][field] = input.value.trim();
+            });
+            
+            return education.filter(edu => edu && (edu.degree || edu.school));
+        }
+
+        // Collecte des compétences
+        function collectSkills() {
+            const skills = [];
+            document.querySelectorAll('#skillsContainer .skill-item').forEach(item => {
+                const text = item.textContent.replace('×', '').trim();
+                if (text) skills.push(text);
+            });
+            return skills;
+        }
+
+        // Collecte des langues
+        function collectLanguages() {
+            const languages = [];
+            document.querySelectorAll('.language-input').forEach(input => {
+                const id = input.dataset.id;
+                const field = input.dataset.field;
+                
+                if (!languages[id]) languages[id] = {};
+                languages[id][field] = input.value.trim();
+            });
+            
+            return languages.filter(lang => lang && lang.language);
+        }
+
+        // Ajout d'expérience
+        function addExperience() {
+            experienceCount++;
+            const container = document.getElementById('experiencesContainer');
+            
+            const experienceHTML = `
+                <div class="dynamic-item animate__animated animate__slideInLeft" id="experience_${experienceCount}">
+                    <button class="remove-btn" onclick="removeExperience(${experienceCount})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Poste *</label>
+                            <input type="text" class="form-control experience-input" data-field="position" data-id="${experienceCount}" placeholder="Titre du poste">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Entreprise *</label>
+                            <input type="text" class="form-control experience-input" data-field="company" data-id="${experienceCount}" placeholder="Nom de l'entreprise">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Date de début</label>
+                            <input type="text" class="form-control experience-input" data-field="startDate" data-id="${experienceCount}" placeholder="MM/YYYY">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Date de fin</label>
+                            <input type="text" class="form-control experience-input" data-field="endDate" data-id="${experienceCount}" placeholder="MM/YYYY ou Présent">
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control experience-input" data-field="description" data-id="${experienceCount}" rows="3" placeholder="Décrivez vos missions, réalisations et responsabilités..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            container.insertAdjacentHTML('beforeend', experienceHTML);
+            
+            // Ajouter les écouteurs
+            container.querySelectorAll(`#experience_${experienceCount} .experience-input`).forEach(input => {
+                input.addEventListener('input', debounce(updatePreview, 300));
+            });
+        }
+
+        // Suppression d'expérience
+        function removeExperience(id) {
+            const element = document.getElementById(`experience_${id}`);
+            element.classList.add('animate__animated', 'animate__slideOutRight');
+            setTimeout(() => {
+                element.remove();
+                updatePreview();
+            }, 500);
+        }
+
+        // Ajout de formation
+        function addEducation() {
+            educationCount++;
+            const container = document.getElementById('educationContainer');
+            
+            const educationHTML = `
+                <div class="dynamic-item animate__animated animate__slideInLeft" id="education_${educationCount}">
+                    <button class="remove-btn" onclick="removeEducation(${educationCount})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Diplôme *</label>
+                            <input type="text" class="form-control education-input" data-field="degree" data-id="${educationCount}" placeholder="Nom du diplôme">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">École/Université *</label>
+                            <input type="text" class="form-control education-input" data-field="school" data-id="${educationCount}" placeholder="Nom de l'établissement">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Année de début</label>
+                            <input type="text" class="form-control education-input" data-field="startYear" data-id="${educationCount}" placeholder="YYYY">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Année de fin</label>
+                            <input type="text" class="form-control education-input" data-field="endYear" data-id="${educationCount}" placeholder="YYYY">
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Description (optionnel)</label>
+                            <textarea class="form-control education-input" data-field="description" data-id="${educationCount}" rows="2" placeholder="Spécialisation, mention, projets remarquables..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            container.insertAdjacentHTML('beforeend', educationHTML);
+            
+            // Ajouter les écouteurs
+            container.querySelectorAll(`#education_${educationCount} .education-input`).forEach(input => {
+                input.addEventListener('input', debounce(updatePreview, 300));
+            });
+        }
+
+        // Suppression de formation
+        function removeEducation(id) {
+            const element = document.getElementById(`education_${id}`);
+            element.classList.add('animate__animated', 'animate__slideOutRight');
+            setTimeout(() => {
+                element.remove();
+                updatePreview();
+            }, 500);
+        }
+
+        // Ajout de compétence
+        function addSkill() {
+            const skillInput = document.getElementById('skillInput');
+            const skill = skillInput.value.trim();
+            
+            if (skill && !isSkillAlreadyAdded(skill)) {
+                const skillsContainer = document.getElementById('skillsContainer');
+                const skillElement = document.createElement('span');
+                skillElement.className = 'skill-item animate__animated animate__bounceIn';
+                skillElement.innerHTML = `${skill} <span class="skill-remove" onclick="removeSkill(this)">×</span>`;
+                
+                skillsContainer.appendChild(skillElement);
+                skillInput.value = '';
+                updatePreview();
+            } else if (isSkillAlreadyAdded(skill)) {
+                alert('Cette compétence a déjà été ajoutée.');
+            }
+        }
+
+        // Vérifier si une compétence existe déjà
+        function isSkillAlreadyAdded(skill) {
+            const existingSkills = Array.from(document.querySelectorAll('#skillsContainer .skill-item'))
+                .map(item => item.textContent.replace('×', '').trim().toLowerCase());
+            return existingSkills.includes(skill.toLowerCase());
+        }
+
+        // Suppression de compétence
+        function removeSkill(element) {
+            const skillElement = element.parentElement;
+            skillElement.classList.add('animate__animated', 'animate__bounceOut');
+            setTimeout(() => {
+                skillElement.remove();
+                updatePreview();
+            }, 500);
+        }
+
+        // Ajout de langue
+        function addLanguage() {
+            languageCount++;
+            const container = document.getElementById('languagesContainer');
+            
+            const languageHTML = `
+                <div class="dynamic-item animate__animated animate__slideInLeft" id="language_${languageCount}">
+                    <button class="remove-btn" onclick="removeLanguage(${languageCount})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Langue *</label>
+                            <input type="text" class="form-control language-input" data-field="language" data-id="${languageCount}" placeholder="Ex: Français">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Niveau</label>
+                            <select class="form-select language-input" data-field="level" data-id="${languageCount}">
+                                <option value="">Choisir le niveau</option>
+                                <option value="Débutant">Débutant</option>
+                                <option value="Intermédiaire">Intermédiaire</option>
+                                <option value="Avancé">Avancé</option>
+                                <option value="Courant">Courant</option>
+                                <option value="Natif">Natif</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            container.insertAdjacentHTML('beforeend', languageHTML);
+            
+            // Ajouter les écouteurs
+            container.querySelectorAll(`#language_${languageCount} .language-input`).forEach(input => {
+                input.addEventListener('input', debounce(updatePreview, 300));
+                input.addEventListener('change', debounce(updatePreview, 300));
+            });
+        }
+
+        // Suppression de langue
+        function removeLanguage(id) {
+            const element = document.getElementById(`language_${id}`);
+            element.classList.add('animate__animated', 'animate__slideOutRight');
+            setTimeout(() => {
+                element.remove();
+                updatePreview();
+            }, 500);
+        }
+
+        // Export PDF fonctionnel
+        async function exportToPDF() {
+            const button = event.target;
+            const originalHTML = button.innerHTML;
+            button.innerHTML = '<div class="loading"></div> Génération PDF...';
+            button.disabled = true;
+
+            try {
+                const { jsPDF } = window.jspdf;
+                const cvElement = document.getElementById('cvPage');
+                
+                // Créer un canvas à partir du CV
+                const canvas = await html2canvas(cvElement, {
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#ffffff'
+                });
+
+                // Créer le PDF
+                const pdf = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+
+                const imgWidth = 210; // A4 width in mm
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                
+                pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, imgWidth, imgHeight);
+                
+                // Télécharger le PDF
+                const fileName = `CV_${document.getElementById('firstName').value || 'Mon'}_${document.getElementById('lastName').value || 'CV'}.pdf`;
+                pdf.save(fileName);
+                
+            } catch (error) {
+                console.error('Erreur lors de la génération du PDF:', error);
+                alert('Erreur lors de la génération du PDF. Veuillez réessayer.');
+            }
+
+            button.innerHTML = originalHTML;
+            button.disabled = false;
+        }
+
+        // Export Word fonctionnel
+        function exportToWord() {
+            const button = event.target;
+            const originalHTML = button.innerHTML;
+            button.innerHTML = '<div class="loading"></div> Génération Word...';
+            button.disabled = true;
+
+            try {
+                const cvContent = document.getElementById('cvPage').innerHTML;
+                const data = collectFormData();
+                
+                // Créer le contenu Word en HTML
+                const wordContent = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta charset="utf-8">
+                        <title>CV - ${data.fullName || 'Mon CV'}</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
+                            .cv-header { text-align: center; border-bottom: 2px solid #4a69bd; padding-bottom: 20px; margin-bottom: 30px; }
+                            .cv-name { font-size: 28px; font-weight: bold; color: #2c3e50; margin-bottom: 10px; }
+                            .cv-title { font-size: 18px; color: #4a69bd; margin-bottom: 15px; }
+                            .cv-contact { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+                            .contact-item { font-size: 14px; color: #666; }
+                            .section-title { font-size: 18px; font-weight: bold; color: #4a69bd; border-left: 3px solid #4a69bd; padding-left: 10px; margin: 25px 0 15px 0; }
+                            .experience-item, .education-item { margin-bottom: 20px; padding: 15px; border-left: 2px solid #4a69bd; background: #f8f9fa; }
+                            .item-title { font-weight: bold; font-size: 16px; color: #2c3e50; }
+                            .item-company { color: #4a69bd; font-weight: 500; }
+                            .item-date { color: #666; font-style: italic; font-size: 14px; }
+                            .item-description { margin-top: 10px; }
+                            .skill-item { background: #4a69bd; color: white; padding: 5px 12px; border-radius: 15px; margin: 3px; display: inline-block; font-size: 14px; }
+                        </style>
+                    </head>
+                    <body>${cvContent}</body>
+                    </html>
+                `;
+
+                // Créer et télécharger le fichier
+                const blob = new Blob([wordContent], { type: 'application/msword' });
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `CV_${data.fullName || 'Mon_CV'}.doc`;
+                link.click();
+                window.URL.revokeObjectURL(url);
+
+            } catch (error) {
+                console.error('Erreur lors de la génération du fichier Word:', error);
+                alert('Erreur lors de la génération du fichier Word. Veuillez réessayer.');
+            }
+
+            button.innerHTML = originalHTML;
+            button.disabled = false;
+        }
+
+        // Impression fonctionnelle
+        function printCV() {
+            const cvContent = document.getElementById('cvPage').innerHTML;
+            const data = collectFormData();
+            
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="utf-8">
+                    <title>CV - ${data.fullName || 'Impression'}</title>
+                    <style>
+                        * { box-sizing: border-box; }
+                        body { 
+                            font-family: 'Segoe UI', Arial, sans-serif; 
+                            margin: 0; 
+                            padding: 20px;
+                            line-height: 1.5;
+                            color: #333;
+                        }
+                        .cv-header { 
+                            text-align: center; 
+                            border-bottom: 2px solid #4a69bd; 
+                            padding-bottom: 20px; 
+                            margin-bottom: 25px; 
+                        }
+                        .cv-photo { 
+                            width: 100px; 
+                            height: 100px; 
+                            border-radius: 50%; 
+                            object-fit: cover; 
+                            border: 3px solid #4a69bd; 
+                            margin: 0 auto 15px;
+                        }
+                        .cv-name { 
+                            font-size: 26px; 
+                            font-weight: bold; 
+                            color: #2c3e50; 
+                            margin-bottom: 8px; 
+                        }
+                        .cv-title { 
+                            font-size: 16px; 
+                            color: #4a69bd; 
+                            margin-bottom: 15px; 
+                        }
+                        .cv-contact { 
+                            display: flex; 
+                            justify-content: center; 
+                            gap: 20px; 
+                            flex-wrap: wrap;
+                        }
+                        .contact-item { 
+                            font-size: 13px; 
+                            color: #666; 
+                            display: flex;
+                            align-items: center;
+                            gap: 5px;
+                        }
+                        .section-title { 
+                            font-size: 16px; 
+                            font-weight: bold; 
+                            color: #4a69bd; 
+                            border-left: 3px solid #4a69bd; 
+                            padding-left: 10px; 
+                            margin: 20px 0 12px 0; 
+                        }
+                        .cv-section {
+                            margin-bottom: 20px;
+                        }
+                        .experience-item, .education-item { 
+                            margin-bottom: 15px; 
+                            padding: 12px; 
+                            border-left: 2px solid #4a69bd; 
+                            background: #f8f9fa; 
+                        }
+                        .item-header {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: flex-start;
+                            margin-bottom: 8px;
+                        }
+                        .item-title { 
+                            font-weight: bold; 
+                            font-size: 14px; 
+                            color: #2c3e50; 
+                        }
+                        .item-company { 
+                            color: #4a69bd; 
+                            font-weight: 500; 
+                            font-size: 13px;
+                        }
+                        .item-date { 
+                            background: #4a69bd;
+                            color: white;
+                            padding: 2px 8px;
+                            border-radius: 10px;
+                            font-size: 11px; 
+                            font-weight: 500;
+                        }
+                        .item-description { 
+                            margin-top: 8px; 
+                            font-size: 13px;
+                            line-height: 1.4;
+                        }
+                        .skill-item { 
+                            background: #4a69bd; 
+                            color: white; 
+                            padding: 4px 10px; 
+                            border-radius: 12px; 
+                            margin: 2px; 
+                            display: inline-block; 
+                            font-size: 12px; 
+                        }
+                        .profile-text {
+                            font-size: 13px;
+                            line-height: 1.5;
+                            text-align: justify;
+                        }
+                        .sidebar {
+                            background: #4a69bd !important;
+                            color: white !important;
+                            padding: 20px !important;
+                        }
+                        .main-content {
+                            padding: 20px !important;
+                        }
+                        @media print { 
+                            body { margin: 0; padding: 15px; } 
+                            .cv-page { page-break-inside: avoid; }
+                        }
+                    </style>
+                </head>
+                <body>${cvContent}</body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            
+            // Attendre que le contenu soit chargé avant d'imprimer
+            printWindow.onload = function() {
+                setTimeout(() => {
+                    printWindow.print();
+                    printWindow.close();
+                }, 500);
+            };
+        }
+
+        // Validation du formulaire
+        function validateForm() {
+            const requiredFields = [
+                { id: 'firstName', name: 'Prénom' },
+                { id: 'lastName', name: 'Nom' },
+                { id: 'email', name: 'Email' },
+                { id: 'jobTitle', name: 'Titre professionnel' }
+            ];
+
+            const errors = [];
+
+            requiredFields.forEach(field => {
+                const element = document.getElementById(field.id);
+                if (!element.value.trim()) {
+                    errors.push(field.name);
+                    element.classList.add('is-invalid');
+                } else {
+                    element.classList.remove('is-invalid');
+                }
+            });
+
+            // Validation email
+            const email = document.getElementById('email').value.trim();
+            if (email && !isValidEmail(email)) {
+                errors.push('Email (format invalide)');
+                document.getElementById('email').classList.add('is-invalid');
+            }
+
+            if (errors.length > 0) {
+                alert(`Veuillez remplir les champs obligatoires suivants :\n- ${errors.join('\n- ')}`);
+                return false;
+            }
+
+            return true;
+        }
+
+        // Validation email
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        // Auto-sauvegarde (simulation)
+        function autoSave() {
+            const data = collectFormData();
+            // Ici vous pourriez sauvegarder dans une base de données
+            console.log('Auto-sauvegarde:', data);
+        }
+
+        // Auto-sauvegarde toutes les 30 secondes
+        setInterval(autoSave, 30000);
+
+        // Raccourcis clavier
+        document.addEventListener('keydown', function(e) {
+            // Ctrl+S pour sauvegarder
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                autoSave();
+                // Afficher une notification
+                showNotification('CV sauvegardé !', 'success');
+            }
+            
+            // Ctrl+P pour imprimer
+            if (e.ctrlKey && e.key === 'p') {
+                e.preventDefault();
+                if (validateForm()) {
+                    printCV();
+                }
+            }
+
+            // Ctrl+E pour exporter en PDF
+            if (e.ctrlKey && e.key === 'e') {
+                e.preventDefault();
+                if (validateForm()) {
+                    exportToPDF();
+                }
+            }
+        });
+
+        // Système de notifications
+        function showNotification(message, type = 'info') {
+            // Créer la notification
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type === 'success' ? 'success' : 'info'} animate__animated animate__fadeInDown`;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                min-width: 300px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            `;
+            notification.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'} me-2"></i>
+                    ${message}
+                    <button type="button" class="btn-close ms-auto" onclick="this.parentElement.parentElement.remove()"></button>
+                </div>
+            `;
+
+            document.body.appendChild(notification);
+
+            // Supprimer automatiquement après 3 secondes
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.classList.add('animate__fadeOutUp');
+                    setTimeout(() => notification.remove(), 500);
+                }
+            }, 3000);
+        }
+
+        // Gestion des erreurs globales
+        window.addEventListener('error', function(e) {
+            console.error('Erreur:', e.error);
+            showNotification('Une erreur s\'est produite. Veuillez rafraîchir la page si le problème persiste.', 'error');
+        });
+
+        // Confirmation avant fermeture si des données ont été saisies
+        window.addEventListener('beforeunload', function(e) {
+            const data = collectFormData();
+            if (data.fullName || data.email || data.profile) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+
+        // Mode plein écran pour le CV
+        function toggleFullscreen() {
+            const cvContainer = document.querySelector('.cv-container');
+            if (cvContainer.classList.contains('fullscreen')) {
+                cvContainer.classList.remove('fullscreen');
+                cvContainer.style.cssText = '';
+            } else {
+                cvContainer.classList.add('fullscreen');
+                cvContainer.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100vw;
+                    height: 100vh;
+                    z-index: 9999;
+                    background: white;
+                    border-radius: 0;
+                `;
+            }
+        }
+
+        // Ajout du bouton plein écran
+        document.addEventListener('DOMContentLoaded', function() {
+            const cvContainer = document.querySelector('.cv-container');
+            const fullscreenBtn = document.createElement('button');
+            fullscreenBtn.className = 'btn btn-sm btn-outline-primary';
+            fullscreenBtn.style.cssText = `
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                z-index: 10;
+            `;
+            fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+            fullscreenBtn.onclick = toggleFullscreen;
+            fullscreenBtn.title = 'Mode plein écran';
+            
+            cvContainer.style.position = 'relative';
+            cvContainer.appendChild(fullscreenBtn);
+        });
+
+        // Templates pré-remplis
+        const sampleData = {
+            developer: {
+                firstName: 'Taliane',
+                lastName: 'Louboundzi',
+                jobTitle: 'Développeur Full Stack',
+                email: 'talianelouboundzi@gmail.com',
+                phone: '+237 6XX XXX XXX',
+                city: 'Douala',
+                country: 'Cameroun',
+                profile: 'Développeur passionné avec 3 ans d\'expérience dans le développement d\'applications web modernes. Expertise en JavaScript, React, Node.js et bases de données. Toujours à l\'affût des dernières technologies pour créer des solutions innovantes.',
+                skills: ['JavaScript', 'React', 'Node.js', 'MongoDB', 'HTML/CSS', 'Git', 'API REST'],
+                experiences: [
+                    {
+                        position: 'Développeur Full Stack',
+                        company: 'Tech Solutions',
+                        startDate: '01/2022',
+                        endDate: 'Présent',
+                        description: 'Développement d\'applications web complètes, gestion de bases de données, collaboration en équipe agile.'
+                    }
+                ],
+                education: [
+                    {
+                        degree: 'Licence en Informatique',
+                        school: 'Université de Douala',
+                        startYear: '2018',
+                        endYear: '2021'
+                    }
+                ],
+                languages: [
+                    { language: 'Français', level: 'Natif' },
+                    { language: 'Anglais', level: 'Courant' }
+                ]
+            }
+        };
+
+        // Fonction pour charger un exemple
+        function loadSample(type) {
+            const data = sampleData[type];
+            if (!data) return;
+
+            // Remplir les champs
+            Object.keys(data).forEach(key => {
+                const element = document.getElementById(key);
+                if (element && typeof data[key] === 'string') {
+                    element.value = data[key];
+                }
+            });
+
+            // Ajouter les compétences
+            if (data.skills) {
+                const skillsContainer = document.getElementById('skillsContainer');
+                skillsContainer.innerHTML = '';
+                data.skills.forEach(skill => {
+                    const skillElement = document.createElement('span');
+                    skillElement.className = 'skill-item';
+                    skillElement.innerHTML = `${skill} <span class="skill-remove" onclick="removeSkill(this)">×</span>`;
+                    skillsContainer.appendChild(skillElement);
+                });
+            }
+
+            updatePreview();
+            showNotification('Exemple chargé avec succès !', 'success');
+        }
+
+        // Ajout d'un bouton pour charger l'exemple
+        document.addEventListener('DOMContentLoaded', function() {
+            const controlPanel = document.querySelector('.control-panel');
+            const sampleBtn = document.createElement('button');
+            sampleBtn.className = 'btn btn-outline-primary btn-sm mt-3';
+            sampleBtn.innerHTML = '<i class="fas fa-magic me-1"></i> Charger un exemple';
+            sampleBtn.onclick = () => loadSample('developer');
+            
+            const sampleDiv = document.createElement('div');
+            sampleDiv.className = 'text-center mt-3 pt-3 border-top';
+            sampleDiv.appendChild(sampleBtn);
+            controlPanel.appendChild(sampleDiv);
+        });
+
+        // Optimisation des performances avec ResizeObserver
+        if (window.ResizeObserver) {
+            const resizeObserver = new ResizeObserver(entries => {
+                // Ajuster la taille du preview si nécessaire
+                updatePreview();
+            });
+
+            document.addEventListener('DOMContentLoaded', function() {
+                const cvContainer = document.querySelector('.cv-container');
+                if (cvContainer) {
+                    resizeObserver.observe(cvContainer);
+                }
+            });
+        }
+
+        // Initialisation finale
+        document.addEventListener('DOMContentLoaded', function() {
+            // Message de bienvenue
+            setTimeout(() => {
+                showNotification('Bienvenue ! Commencez à remplir vos informations pour créer votre CV.', 'info');
+            }, 1000);
+
+            // Focus sur le premier champ
+            document.getElementById('firstName').focus();
+        });
+    </script>
+</body>
+</html>
